@@ -3,6 +3,9 @@ const graphql = require('graphql');
 const Adherent = require('./models/adherent');
 const AdherentType = require('./types/AdherentType');
 
+const Bill = require('./models/bill/bill');
+const BillType = require('./types/bill/BillType');
+
 const CashFund = require('./models/cashfund');
 const CashFundType = require('./types/CashFundType');
 
@@ -133,6 +136,62 @@ const RootQueryType = new GraphQLObjectType({
             type: new GraphQLList(AdherentType),
             resolve(parent, args) {
                 return Adherent.find({});
+            }
+        },
+        /**
+         * 
+         * 
+         * Query bill
+         * 
+         * 
+         */
+        billByMember: {
+            type: new GraphQLList(BillType),
+            args: { member: { type: new GraphQLNonNull(GraphQLString) } },
+            resolve(parent, args) {
+                return Bill.find({ member: args.member });
+            }
+        },
+        billByPeriod: {
+            type: new GraphQLList(BillType),
+            args: {
+                startDate: { type: new GraphQLNonNull(GraphQLString) },
+                endDate: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                if (args.endDate != "") {
+                    return Bill.find({ date: { "$gte": args.startDate, "$lte": args.endDate } })
+                } else {
+                    return Bill.find({ date: { "$gte": args.startDate, "$lte": args.startDate } })
+                }
+
+            }
+        },
+        billByProvider: {
+            type: new GraphQLList(BillType),
+            args: { provider: { type: new GraphQLNonNull(GraphQLString) } },
+            resolve(parent, args) {
+                return Bill.find({ provider: args.provider });
+            }
+        },
+        billByPriceTotGreater: {
+            type: new GraphQLList(BillType),
+            args: { price_tot: { type: new GraphQLNonNull(GraphQLFloat) } },
+            resolve(parent, args) {
+                return Bill.find({ price_tot: { "$gte": args.price_tot } }).sort({ price_tot: -1 });
+            }
+        },
+        billByPriceTotLess: {
+            type: new GraphQLList(BillType),
+            args: { price_tot: { type: new GraphQLNonNull(GraphQLFloat) } },
+            resolve(parent, args) {
+                return Bill.find({ price_tot: { "$lte": args.price_tot } }).sort({ price_tot: 1 });
+            }
+        },
+        allBill: {
+            type: new GraphQLList(BillType),
+            resolve(parent, args) {
+                return Bill.find({})
             }
         },
         /**

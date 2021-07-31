@@ -4,6 +4,11 @@ const mongoose = require('mongoose');
 const Adherent = require('./models/adherent');
 const AdherentType = require('./types/AdherentType');
 
+const Bill = require('./models/bill/bill');
+const BillType = require('./types/bill/BillType');
+const LineBill = require('./models/bill/linebill');
+const LineBillInputType = require('./types/bill/linebill/LineBillInputType');
+
 const CashFund = require('./models/cashfund');
 const CashFundType = require('./types/CashFundType');
 
@@ -262,6 +267,54 @@ const MutationType = new GraphQLObjectType({
                 } else {
                     return Adherent.findById(args._id);
                 }
+            }
+        },
+        /**
+         * 
+         * 
+         * Mutation bill
+         * 
+         * 
+         */
+        addBill: {
+            type: BillType,
+            args: {
+                member: { type: new GraphQLNonNull(GraphQLID) },
+                provider: { type: new GraphQLNonNull(GraphQLID) },
+                products: { type: new GraphQLNonNull(new GraphQLList(LineBillInputType)) },
+            },
+            resolve(parent, args) {
+                const productArray = JSON.parse(JSON.stringify(args.products));
+                var price_tot = 0;
+                var i = 0;
+                var linebill_id = [];
+                while (i < productArray.length) {
+                    var price_line = productArray[i].price_unit * productArray[i].quantity + (productArray[i].price_unit * productArray[i].quantity) * productArray[i].tva / 100;
+                    let lineBill = new LineBill({
+                        _id: mongoose.Types.ObjectId(),
+                        product: productArray[i].product,
+                        quantity: productArray[i].quantity,
+                        price_unit: productArray[i].price_unit,
+                        tva: productArray[i].tva,
+                        price_line: price_line
+                    })
+                    lineBill.save();
+                    linebill_id.push(lineBill._id);
+                    price_tot += price_line;
+                    i++;
+                }
+                let today = new Date();
+                let date = parseInt(today.getMonth() + 1) + "-" + today.getDate() + "-" + today.getFullYear();
+                price_tot = Number.parseFloat(price_tot).toFixed(2);
+                let bill = new Bill({
+                    _id: mongoose.Types.ObjectId(),
+                    member: args.member,
+                    date: date,
+                    provider: args.provider,
+                    products: linebill_id,
+                    price_tot: price_tot
+                });
+                return bill.save()
             }
         },
         /**
