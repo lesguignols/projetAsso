@@ -22,6 +22,11 @@ const ReductionType = require('./types/ReductionType');
 const Settings = require('./models/settings');
 const SettingsType = require('./types/SettingsType');
 
+const SlipCoins = require('./models/slip/slipcoins');
+const SlipCoinsType = require('./types/slip/SlipCoinsType');
+const SlipTicket = require('./models/slip/slipticket');
+const SlipTicketType = require('./types/slip/SlipTicketType');
+
 const Training = require('./models/training');
 const TrainingType = require('./types/TrainingType');
 
@@ -629,6 +634,115 @@ const MutationType = new GraphQLObjectType({
             },
             resolve(parent, args) {
                 return Settings.findByIdAndUpdate(args._id, { $set: { "scan": args.scan } }, { new: true, useFindAndModify: false });
+            }
+        },
+        /**
+         * 
+         * 
+         * Mutation slip
+         * 
+         * 
+         */
+        addSlipCoins: {
+            type: SlipCoinsType,
+            args: {
+                member: { type: new GraphQLNonNull(GraphQLID) },
+                num_slip: { type: new GraphQLNonNull(GraphQLString) },
+                two: { type: new GraphQLNonNull(GraphQLInt) },
+                one: { type: new GraphQLNonNull(GraphQLInt) },
+                fiftycents: { type: new GraphQLNonNull(GraphQLInt) },
+                twentycents: { type: new GraphQLNonNull(GraphQLInt) },
+                tencents: { type: new GraphQLNonNull(GraphQLInt) },
+                fivecents: { type: new GraphQLNonNull(GraphQLInt) },
+                twocents: { type: new GraphQLNonNull(GraphQLInt) },
+                onecents: { type: new GraphQLNonNull(GraphQLInt) }
+            },
+            resolve(parent, args) {
+                var total_amount = 0;
+                if (args.two) {
+                    total_amount += args.two * 2;
+                }
+                if (args.one) {
+                    total_amount += args.one * 1;
+                }
+                if (args.fiftycents) {
+                    total_amount += args.fiftycents * 0.5;
+                }
+                if (args.twentycents) {
+                    total_amount += args.twentycents * 0.2;
+                }
+                if (args.tencents) {
+                    total_amount += args.tencents * 0.1;
+                }
+                if (args.fivecents) {
+                    total_amount += args.fivecents * 0.05;
+                }
+                if (args.twocents) {
+                    total_amount += args.twocents * 0.02;
+                }
+                if (args.onecents) {
+                    total_amount += args.onecents * 0.01;
+                }
+                total_amount = Number.parseFloat(total_amount).toFixed(2);
+                let today = new Date();
+                let date = parseInt(today.getMonth() + 1) + "-" + today.getDate() + "-" + today.getFullYear();
+                let slipcoins = new SlipCoins({
+                    _id: mongoose.Types.ObjectId(),
+                    date: date,
+                    member: args.member,
+                    num_slip: args.num_slip,
+                    total_amount: total_amount,
+                    two: args.two,
+                    one: args.one,
+                    fiftycents: args.fiftycents,
+                    twentycents: args.twentycents,
+                    tencents: args.tencents,
+                    fivecents: args.fivecents,
+                    twocents: args.twocents,
+                    onecents: args.onecents
+                })
+                return slipcoins.save()
+            }
+        },
+        addSlipTicket: {
+            type: SlipTicketType,
+            args: {
+                member: { type: new GraphQLNonNull(GraphQLID) },
+                num_slip: { type: new GraphQLNonNull(GraphQLString) },
+                fifty: { type: new GraphQLNonNull(GraphQLInt) },
+                twenty: { type: new GraphQLNonNull(GraphQLInt) },
+                ten: { type: new GraphQLNonNull(GraphQLInt) },
+                five: { type: new GraphQLNonNull(GraphQLInt) }
+            },
+            resolve(parent, args) {
+                var total_amount = 0;
+                if (args.fifty) {
+                    total_amount += args.fifty * 50;
+                }
+                if (args.twenty) {
+                    total_amount += args.twenty * 20;
+                }
+                if (args.ten) {
+                    total_amount += args.ten * 10;
+                }
+                if (args.five) {
+                    total_amount += args.five * 5;
+                }
+                total_amount = Number.parseFloat(total_amount).toFixed(2);
+                let today = new Date();
+                let date = parseInt(today.getMonth() + 1) + "-" + today.getDate() + "-" + today.getFullYear();
+                let slipticket = new SlipTicket({
+                    _id: mongoose.Types.ObjectId(),
+                    date: date,
+                    member: args.member,
+                    num_slip: args.num_slip,
+                    total_amount: total_amount,
+                    fifty: args.fifty,
+                    twenty: args.twenty,
+                    ten: args.ten,
+                    five: args.five
+                })
+                return slipticket.save()
             }
         },
         /**
