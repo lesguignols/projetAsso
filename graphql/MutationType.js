@@ -10,6 +10,9 @@ const PriceType = require('./types/PriceType');
 const Product = require('./models/product');
 const ProductType = require('./types/ProductType');
 
+const Settings = require('./models/settings');
+const SettingsType = require('./types/SettingsType');
+
 const Training = require('./models/training');
 const TrainingType = require('./types/TrainingType');
 
@@ -370,6 +373,60 @@ const MutationType = new GraphQLObjectType({
             },
             resolve(parent, args) {
                 return Product.findByIdAndRemove({ _id: args._id });
+            }
+        },
+        /**
+         * 
+         * 
+         * Mutation settings
+         * 
+         * 
+         */
+        addSettings: {
+            type: SettingsType,
+            args: {
+                photo_directory: { type: new GraphQLNonNull(GraphQLString) },
+                cash_register: { type: new GraphQLNonNull(GraphQLBoolean) },
+                scan: { type: new GraphQLNonNull(GraphQLBoolean) }
+            },
+            resolve(parent, args) {
+                let settings = new Settings({
+                    _id: mongoose.Types.ObjectId(),
+                    photo_directory: args.photo_directory,
+                    cash_register: args.cash_register,
+                    scan: args.scan
+                })
+                return settings.save()
+            }
+        },
+        updatePhotoDirectorySettings: {
+            type: SettingsType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                photo_directory: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                return Settings.findByIdAndUpdate(args._id, { $set: { "photo_directory": args.photo_directory } }, { new: true, useFindAndModify: false });
+            }
+        },
+        updateCashRegisterSettings: {
+            type: SettingsType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                cash_register: { type: new GraphQLNonNull(GraphQLBoolean) }
+            },
+            resolve(parent, args) {
+                return Settings.findByIdAndUpdate(args._id, { $set: { "cash_register": args.cash_register } }, { new: true, useFindAndModify: false });
+            }
+        },
+        updateScanSettings: {
+            type: SettingsType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                scan: { type: new GraphQLNonNull(GraphQLBoolean) }
+            },
+            resolve(parent, args) {
+                return Settings.findByIdAndUpdate(args._id, { $set: { "scan": args.scan } }, { new: true, useFindAndModify: false });
             }
         },
         /**
