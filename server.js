@@ -58,7 +58,7 @@ app.use('/api/price', priceRoutes);
 
 
 
-
+app.use('/api/settings', settingsRoutes);
 
 
 app.use('/api/training', trainingRoutes);
