@@ -10,6 +10,9 @@ const PriceType = require('./types/PriceType');
 const Product = require('./models/product');
 const ProductType = require('./types/ProductType');
 
+const Provider = require('./models/provider');
+const ProviderType = require('./types/ProviderType');
+
 const Settings = require('./models/settings');
 const SettingsType = require('./types/SettingsType');
 
@@ -373,6 +376,81 @@ const MutationType = new GraphQLObjectType({
             },
             resolve(parent, args) {
                 return Product.findByIdAndRemove({ _id: args._id });
+            }
+        },
+        /**
+         * 
+         * 
+         * Mutation provider
+         * 
+         * 
+         */
+        addProvider: {
+            type: ProviderType,
+            args: {
+                name: { type: new GraphQLNonNull(GraphQLString) },
+                address: { type: new GraphQLNonNull(GraphQLString) },
+                phone: { type: new GraphQLNonNull(GraphQLString) },
+                email: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                let provider = new Provider({
+                    _id: mongoose.Types.ObjectId(),
+                    name: args.name,
+                    address: args.address,
+                    phone: args.phone,
+                    email: args.email
+                })
+                return provider.save()
+            }
+        },
+        updateNameProvider: {
+            type: ProviderType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                name: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                return Provider.findByIdAndUpdate(args._id, { $set: { "name": args.name } }, { new: true, useFindAndModify: false });
+            }
+        },
+        updateAddressProvider: {
+            type: ProviderType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                address: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                return Provider.findByIdAndUpdate(args._id, { $set: { "address": args.address } }, { new: true, useFindAndModify: false });
+            }
+        },
+        updatePhoneProvider: {
+            type: ProviderType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                phone: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                return Provider.findByIdAndUpdate(args._id, { $set: { "phone": args.phone } }, { new: true, useFindAndModify: false });
+            }
+        },
+        updateEmailProvider: {
+            type: ProviderType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                email: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                return Provider.findByIdAndUpdate(args._id, { $set: { "email": args.email } }, { new: true, useFindAndModify: false });
+            }
+        },
+        removeProvider: {
+            type: ProviderType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                return Provider.findByIdAndRemove({ _id: args._id });
             }
         },
         /**

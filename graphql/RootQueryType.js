@@ -9,6 +9,9 @@ const PriceType = require('./types/PriceType');
 const Product = require('./models/product');
 const ProductType = require('./types/ProductType');
 
+const Provider = require('./models/provider');
+const ProviderType = require('./types/ProviderType');
+
 const Settings = require('./models/settings');
 const SettingsType = require('./types/SettingsType');
 
@@ -180,6 +183,26 @@ const RootQueryType = new GraphQLObjectType({
             type: new GraphQLList(ProductType),
             resolve(parent, args) {
                 return Product.find({});
+            }
+        },
+        /**
+         * 
+         * 
+         * Query provider
+         * 
+         * 
+         */
+        providerById: {
+            type: ProviderType,
+            args: { _id: { type: new GraphQLNonNull(GraphQLString) } },
+            resolve(parent, args) {
+                return Provider.findById(args._id);
+            }
+        },
+        allProviders: {
+            type: new GraphQLList(ProviderType),
+            resolve(parent, args) {
+                return Provider.find({});
             }
         },
         /**
