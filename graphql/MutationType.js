@@ -4,6 +4,9 @@ const mongoose = require('mongoose');
 const Adherent = require('./models/adherent');
 const AdherentType = require('./types/AdherentType');
 
+const CashFund = require('./models/cashfund');
+const CashFundType = require('./types/CashFundType');
+
 const Price = require('./models/price');
 const PriceType = require('./types/PriceType');
 
@@ -250,6 +253,57 @@ const MutationType = new GraphQLObjectType({
                 } else {
                     return Adherent.findById(args._id);
                 }
+            }
+        },
+        /**
+         * 
+         * 
+         * Mutation cashfund
+         * 
+         * 
+         */
+        addCashFund: {
+            type: CashFundType,
+            args: {
+                member: { type: new GraphQLNonNull(GraphQLID) },
+                fifty: { type: new GraphQLNonNull(GraphQLInt) },
+                twenty: { type: new GraphQLNonNull(GraphQLInt) },
+                ten: { type: new GraphQLNonNull(GraphQLInt) },
+                five: { type: new GraphQLNonNull(GraphQLInt) },
+                two: { type: new GraphQLNonNull(GraphQLInt) },
+                one: { type: new GraphQLNonNull(GraphQLInt) },
+                fiftycents: { type: new GraphQLNonNull(GraphQLInt) },
+                twentycents: { type: new GraphQLNonNull(GraphQLInt) },
+                tencents: { type: new GraphQLNonNull(GraphQLInt) },
+                fivecents: { type: new GraphQLNonNull(GraphQLInt) },
+                twocents: { type: new GraphQLNonNull(GraphQLInt) },
+                onecents: { type: new GraphQLNonNull(GraphQLInt) }
+            },
+            resolve(parent, args) {
+                var sum = args.fifty * 50 + args.twenty * 20 + args.ten * 10 + args.five * 5 + args.two * 2 + args.one * 1 + args.fiftycents * 0.5 + args.twentycents * 0.2 +
+                    args.tencents * 0.1 + args.fivecents * 0.05 + args.twocents * 0.02 + args.onecents * 0.01;
+                sum = Number.parseFloat(sum).toFixed(2);
+                let today = new Date();
+                let date = parseInt(today.getMonth() + 1) + "-" + today.getDate() + "-" + today.getFullYear();
+                let cashfund = new CashFund({
+                    _id: mongoose.Types.ObjectId(),
+                    date: date,
+                    member: args.member,
+                    sum: sum,
+                    fifty: args.fifty,
+                    twenty: args.twenty,
+                    ten: args.ten,
+                    five: args.five,
+                    two: args.two,
+                    one: args.one,
+                    fiftycents: args.fiftycents,
+                    twentycents: args.twentycents,
+                    tencents: args.tencents,
+                    fivecents: args.fivecents,
+                    twocents: args.twocents,
+                    onecents: args.onecents
+                })
+                return cashfund.save()
             }
         },
         /**

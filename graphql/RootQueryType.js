@@ -3,6 +3,9 @@ const graphql = require('graphql');
 const Adherent = require('./models/adherent');
 const AdherentType = require('./types/AdherentType');
 
+const CashFund = require('./models/cashfund');
+const CashFundType = require('./types/CashFundType');
+
 const Price = require('./models/price');
 const PriceType = require('./types/PriceType');
 
@@ -122,6 +125,77 @@ const RootQueryType = new GraphQLObjectType({
             type: new GraphQLList(AdherentType),
             resolve(parent, args) {
                 return Adherent.find({});
+            }
+        },
+        /**
+         * 
+         * 
+         * Query cashfund
+         * 
+         * 
+         */
+        cashFundById: {
+            type: CashFundType,
+            args: { _id: { type: new GraphQLNonNull(GraphQLString) } },
+            resolve(parent, args) {
+                return CashFund.findById(args._id);
+            }
+        },
+        cashFundByPeriod: {
+            type: new GraphQLList(CashFundType),
+            args: {
+                startDate: { type: new GraphQLNonNull(GraphQLString) },
+                endDate: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                if (args.endDate != "") {
+                    return CashFund.find({ date: { "$gte": args.startDate, "$lte": args.endDate } })
+                } else {
+                    return CashFund.find({ date: { "$gte": args.startDate, "$lte": args.startDate } })
+                }
+
+            }
+        },
+        cashFundByMember: {
+            type: new GraphQLList(CashFundType),
+            args: { member: { type: new GraphQLNonNull(GraphQLString) } },
+            resolve(parent, args) {
+                return CashFund.find({ member: args.member });
+            }
+        },
+        cashFundByPeriodAndMember: {
+            type: new GraphQLList(CashFundType),
+            args: {
+                startDate: { type: new GraphQLNonNull(GraphQLString) },
+                endDate: { type: new GraphQLNonNull(GraphQLString) },
+                member: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                if (args.endDate != "") {
+                    return CashFund.find({ date: { "$gte": args.startDate, "$lte": args.endDate }, member: args.member })
+                } else {
+                    return CashFund.find({ date: { "$gte": args.startDate, "$lte": args.startDate }, member: args.member })
+                }
+            }
+        },
+        cashFundBySumGreater: {
+            type: new GraphQLList(CashFundType),
+            args: { sum: { type: new GraphQLNonNull(GraphQLFloat) } },
+            resolve(parent, args) {
+                return CashFund.find({ sum: { "$gte": args.sum } }).sort({ sum: -1 });
+            }
+        },
+        cashFundBySumLess: {
+            type: new GraphQLList(CashFundType),
+            args: { sum: { type: new GraphQLNonNull(GraphQLFloat) } },
+            resolve(parent, args) {
+                return CashFund.find({ sum: { "$lte": args.sum } }).sort({ sum: 1 });
+            }
+        },
+        allCashFunds: {
+            type: new GraphQLList(CashFundType),
+            resolve(parent, args) {
+                return CashFund.find({});
             }
         },
         /**
