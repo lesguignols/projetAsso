@@ -16,6 +16,9 @@ const ProductType = require('./types/ProductType');
 const Provider = require('./models/provider');
 const ProviderType = require('./types/ProviderType');
 
+const Reduction = require('./models/reduction');
+const ReductionType = require('./types/ReductionType');
+
 const Settings = require('./models/settings');
 const SettingsType = require('./types/SettingsType');
 
@@ -26,6 +29,7 @@ const TrainingType = require('./types/TrainingType');
 const {
     GraphQLObjectType,
     GraphQLNonNull,
+    GraphQLList,
     GraphQLString,
     GraphQLFloat,
     GraphQLBoolean,
@@ -505,6 +509,72 @@ const MutationType = new GraphQLObjectType({
             },
             resolve(parent, args) {
                 return Provider.findByIdAndRemove({ _id: args._id });
+            }
+        },
+        /**
+         * 
+         * 
+         * Mutation reduction
+         * 
+         * 
+         */
+        addReduction: {
+            type: ReductionType,
+            args: {
+                name: { type: new GraphQLNonNull(GraphQLString) },
+                active: { type: new GraphQLNonNull(GraphQLBoolean) },
+                rate: { type: new GraphQLNonNull(GraphQLFloat) },
+                products: { type: new GraphQLList(GraphQLID) }
+            },
+            resolve(parent, args) {
+                let reduction = new Reduction({
+                    _id: mongoose.Types.ObjectId(),
+                    name: args.name,
+                    active: args.active,
+                    rate: args.rate,
+                    products: args.products
+                })
+                return reduction.save()
+            }
+        },
+        updateNameReduction: {
+            type: ReductionType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                name: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                return Reduction.findByIdAndUpdate(args._id, { $set: { "name": args.name } }, { new: true, useFindAndModify: false });
+            }
+        },
+        updateActiveReduction: {
+            type: ReductionType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                active: { type: new GraphQLNonNull(GraphQLBoolean) }
+            },
+            resolve(parent, args) {
+                return Reduction.findByIdAndUpdate(args._id, { $set: { "active": args.active } }, { new: true, useFindAndModify: false });
+            }
+        },
+        addProductsReduction: {
+            type: ReductionType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                products: { type: new GraphQLNonNull(new GraphQLList(GraphQLString)) }
+            },
+            resolve(parent, args) {
+                return Reduction.findByIdAndUpdate(args._id, { $push: { "products": args.products } }, { new: true, useFindAndModify: false });
+            }
+        },
+        removeProductsReduction: {
+            type: ReductionType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                products: { type: new GraphQLNonNull(new GraphQLList(GraphQLString)) }
+            },
+            resolve(parent, args) {
+                return Reduction.findByIdAndUpdate(args._id, { $pullAll: { "products": args.products } }, { new: true, useFindAndModify: false });
             }
         },
         /**

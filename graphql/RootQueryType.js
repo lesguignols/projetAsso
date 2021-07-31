@@ -15,6 +15,9 @@ const ProductType = require('./types/ProductType');
 const Provider = require('./models/provider');
 const ProviderType = require('./types/ProviderType');
 
+const Reduction = require('./models/reduction');
+const ReductionType = require('./types/ReductionType');
+
 const Settings = require('./models/settings');
 const SettingsType = require('./types/SettingsType');
 
@@ -277,6 +280,33 @@ const RootQueryType = new GraphQLObjectType({
             type: new GraphQLList(ProviderType),
             resolve(parent, args) {
                 return Provider.find({});
+            }
+        },
+        /**
+         * 
+         * 
+         * Query reduction
+         * 
+         * 
+         */
+        reductionByActive: {
+            type: new GraphQLList(ReductionType),
+            args: { active: { type: new GraphQLNonNull(GraphQLBoolean) } },
+            resolve(parent, args) {
+                return Reduction.find({ active: args.active });
+            }
+        },
+        reductionByProducts: {
+            type: new GraphQLList(ReductionType),
+            args: { products: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLString))) } },
+            resolve(parent, args) {
+                return Reduction.find({ products: { "$in": args.products } });
+            }
+        },
+        allReductions: {
+            type: new GraphQLList(ReductionType),
+            resolve(parent, args) {
+                return Reduction.find({});
             }
         },
         /**
