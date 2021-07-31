@@ -4,13 +4,17 @@ const mongoose = require('mongoose');
 const Price = require('./models/price');
 const PriceType = require('./types/PriceType');
 
+const Training = require('./models/training');
+const TrainingType = require('./types/TrainingType');
+
 
 const {
     GraphQLObjectType,
     GraphQLNonNull,
     GraphQLString,
     GraphQLFloat,
-    GraphQLBoolean
+    GraphQLBoolean,
+    GraphQLInt
 } = graphql;
 
 const MutationType = new GraphQLObjectType({
@@ -77,6 +81,69 @@ const MutationType = new GraphQLObjectType({
             },
             resolve(parent, args) {
                 return Price.findByIdAndRemove({ _id: args._id });
+            }
+        },
+        /**
+         * 
+         * 
+         * Mutation training
+         * 
+         * 
+         */
+        addTraining: {
+            type: TrainingType,
+            args: {
+                curriculum: { type: new GraphQLNonNull(GraphQLString) },
+                wording: { type: new GraphQLNonNull(GraphQLString) },
+                year: { type: new GraphQLNonNull(GraphQLInt) }
+            },
+            resolve(parent, args) {
+                let training = new Training({
+                    _id: mongoose.Types.ObjectId(),
+                    curriculum: args.curriculum,
+                    wording: args.wording,
+                    year: args.year
+                })
+                return training.save()
+            }
+        },
+        updateCurriculumTraining: {
+            type: TrainingType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                curriculum: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                return Training.findByIdAndUpdate(args._id, { $set: { "curriculum": args.curriculum } }, { new: true, useFindAndModify: false });
+            }
+        },
+        updateWordingTraining: {
+            type: TrainingType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                wording: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                return Training.findByIdAndUpdate(args._id, { $set: { "wording": args.wording } }, { new: true, useFindAndModify: false });
+            }
+        },
+        updateYearTraining: {
+            type: TrainingType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                year: { type: new GraphQLNonNull(GraphQLInt) }
+            },
+            resolve(parent, args) {
+                return Training.findByIdAndUpdate(args._id, { $set: { "year": args.year } }, { new: true, useFindAndModify: false });
+            }
+        },
+        removeTraining: {
+            type: TrainingType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                return Training.findByIdAndRemove({ _id: args._id });
             }
         }
     }
