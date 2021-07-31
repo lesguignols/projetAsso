@@ -9,6 +9,9 @@ const BillType = require('./types/bill/BillType');
 const CashFund = require('./models/cashfund');
 const CashFundType = require('./types/CashFundType');
 
+const Offer = require('./models/offer/offer');
+const OfferType = require('./types/offer/OfferType');
+
 const Price = require('./models/price');
 const PriceType = require('./types/PriceType');
 
@@ -263,6 +266,26 @@ const RootQueryType = new GraphQLObjectType({
             type: new GraphQLList(CashFundType),
             resolve(parent, args) {
                 return CashFund.find({});
+            }
+        },
+        /**
+         * 
+         * 
+         * Query offer
+         * 
+         * 
+         */
+        offerByActive: {
+            type: new GraphQLList(OfferType),
+            args: { active: { type: new GraphQLNonNull(GraphQLBoolean) } },
+            resolve(parent, args) {
+                return Offer.find({ active: args.active });
+            }
+        },
+        allOffers: {
+            type: new GraphQLList(OfferType),
+            resolve(parent, args) {
+                return Offer.find({});
             }
         },
         /**

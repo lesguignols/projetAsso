@@ -12,6 +12,11 @@ const LineBillInputType = require('./types/bill/linebill/LineBillInputType');
 const CashFund = require('./models/cashfund');
 const CashFundType = require('./types/CashFundType');
 
+const Offer = require('./models/offer/offer');
+const OfferType = require('./types/offer/OfferType');
+const ProductOffer = require('./models/offer/productoffer');
+const ProductOfferInputType = require('./types/offer/productoffer/ProductOfferInputType');
+
 const Price = require('./models/price');
 const PriceType = require('./types/PriceType');
 
@@ -366,6 +371,137 @@ const MutationType = new GraphQLObjectType({
                     onecents: args.onecents
                 })
                 return cashfund.save()
+            }
+        },
+        /**
+         * 
+         * 
+         * Mutation offer
+         * 
+         * 
+         */
+        addOffer: {
+            type: OfferType,
+            args: {
+                name: {
+                    type: new GraphQLNonNull(GraphQLString),
+                    description: "Correspond au nom de l'offre."
+                },
+                active: {
+                    type: new GraphQLNonNull(GraphQLBoolean),
+                    description: "Si vrai, l'offre est active."
+                },
+                price: {
+                    type: new GraphQLNonNull(GraphQLFloat),
+                    description: "Correspond au prix de l'offre."
+                },
+                products: {
+                    type: new GraphQLNonNull(new GraphQLList(ProductOfferInputType)),
+                    description: "Liste contenant les identifiants des produits qui concerne l'offre.",
+                },
+                daily: {
+                    type: new GraphQLNonNull(GraphQLBoolean),
+                    description: "daily = quotidien donc si vrai, c'est une offre qui se fait par rapport à l'heure."
+                },
+                members_exclusivity: {
+                    type: new GraphQLNonNull(GraphQLBoolean),
+                    description: "Si vrai, c'est une offre exclusive aux adhérents."
+                },
+                startOffer: {
+                    type: new GraphQLNonNull(GraphQLString),
+                    description: "Correspond à la date/à l'heure de début de l'offre."
+                },
+                endOffer: {
+                    type: new GraphQLNonNull(GraphQLString),
+                    description: "Correspond à la date/à l'heure de fin de l'offre."
+                }
+            },
+            resolve(parent, args) {
+                const productArray = JSON.parse(JSON.stringify(args.products));
+                var i = 0;
+                var productoffer_id = [];
+                while (i < productArray.length) {
+                    let productoffer = new ProductOffer({
+                        _id: mongoose.Types.ObjectId(),
+                        product: productArray[i].product,
+                        quantity: productArray[i].quantity
+                    })
+                    productoffer.save();
+                    productoffer_id.push(productoffer._id);
+                    i++;
+                }
+                let offer = new Offer({
+                    _id: mongoose.Types.ObjectId(),
+                    name: args.name,
+                    active: args.active,
+                    price: args.price,
+                    products: productoffer_id,
+                    daily: args.daily,
+                    members_exclusivity: args.members_exclusivity,
+                    startOffer: args.startOffer,
+                    endOffer: args.endOffer
+                })
+                return offer.save()
+            }
+        },
+        updateNameOffer: {
+            type: OfferType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                name: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                return Offer.findByIdAndUpdate(args._id, { $set: { "name": args.name } }, { new: true, useFindAndModify: false });
+            }
+        },
+        updateActiveOffer: {
+            type: OfferType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                active: { type: new GraphQLNonNull(GraphQLBoolean) }
+            },
+            resolve(parent, args) {
+                return Offer.findByIdAndUpdate(args._id, { $set: { "active": args.active } }, { new: true, useFindAndModify: false });
+            }
+        },
+        addProductsOffer: {
+            type: OfferType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                products: { type: new GraphQLNonNull(new GraphQLList(ProductOfferInputType)) }
+            },
+            resolve(parent, args) {
+                const productArray = JSON.parse(JSON.stringify(args.products));
+                var i = 0;
+                var productmap_id = [];
+                while (i < productArray.length) {
+                    let productmap = new ProductMap({
+                        _id: mongoose.Types.ObjectId(),
+                        product: productArray[i].product,
+                        quantity: productArray[i].quantity
+                    })
+                    productmap.save();
+                    productmap_id.push(productmap._id);
+                    i++;
+                }
+                return Offer.findByIdAndUpdate(args._id, { $push: { "products": productmap_id } }, { new: true, useFindAndModify: false });
+            }
+        },
+        removeProductsOffer: {
+            type: OfferType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                products: { type: new GraphQLNonNull(new GraphQLList(GraphQLString)) }
+            },
+            resolve(parent, args) {
+                const productArray = JSON.parse(JSON.stringify(args.products));
+                console.log(productArray)
+                var i = 0;
+                while (i < productArray.length) {
+                    ProductMap.findByIdAndDelete(productArray[i]);
+                    i++;
+                }
+                return Offer.findByIdAndUpdate(args._id, { $pullAll: { "products": args.products } }, { new: true, useFindAndModify: false });
             }
         },
         /**
