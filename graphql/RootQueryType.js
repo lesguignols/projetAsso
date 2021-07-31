@@ -1,5 +1,8 @@
 const graphql = require('graphql');
 
+const Adherent = require('./models/adherent');
+const AdherentType = require('./types/AdherentType');
+
 const Price = require('./models/price');
 const PriceType = require('./types/PriceType');
 
@@ -11,12 +14,106 @@ const {
     GraphQLObjectType,
     GraphQLList,
     GraphQLString,
-    GraphQLBoolean
+    GraphQLBoolean,
+    GraphQLInt
 } = graphql;
 
 const RootQueryType = new GraphQLObjectType({
     name: 'RootQueryType',
     fields: {
+        /**
+         * 
+         * 
+         * Query adherent
+         * 
+         * 
+         */
+        adherentById: {
+            type: AdherentType,
+            args: { _id: { type: new GraphQLNonNull(GraphQLString) } },
+            resolve(parent, args) {
+                return Adherent.findById(args._id);
+            }
+        },
+        adherentByCard: {
+            type: new GraphQLList(AdherentType),
+            args: { card: { type: new GraphQLNonNull(GraphQLString) } },
+            resolve(parent, args) {
+                return Adherent.find({ card: args.card });
+            }
+        },
+        adherentByCardAndCode: {
+            type: new GraphQLList(AdherentType),
+            args: {
+                card: { type: new GraphQLNonNull(GraphQLString) },
+                code: { type: new GraphQLNonNull(GraphQLInt) }
+            },
+            resolve(parent, args) {
+                return Adherent.find({ card: args.card, code: args.code, active: true });
+            }
+        },
+        adherentByName: {
+            type: new GraphQLList(AdherentType),
+            args: { name: { type: new GraphQLNonNull(GraphQLString) } },
+            resolve(parent, args) {
+                return Adherent.find({ name: args.name });
+            }
+        },
+        adherentByFirstName: {
+            type: new GraphQLList(AdherentType),
+            args: { firstName: { type: new GraphQLNonNull(GraphQLString) } },
+            resolve(parent, args) {
+                return Adherent.find({ firstName: args.firstName });
+            }
+        },
+        adherentByPrice: {
+            type: new GraphQLList(AdherentType),
+            args: { price: { type: new GraphQLNonNull(GraphQLString) } },
+            resolve(parent, args) {
+                return Adherent.find({ price: args.price });
+            }
+        },
+        adherentByTraining: {
+            type: new GraphQLList(AdherentType),
+            args: { training: { type: new GraphQLNonNull(GraphQLString) } },
+            resolve(parent, args) {
+                return Adherent.find({ training: args.training });
+            }
+        },
+        adherentByActive: {
+            type: new GraphQLList(AdherentType),
+            args: { active: { type: new GraphQLNonNull(GraphQLBoolean) } },
+            resolve(parent, args) {
+                return Adherent.find({ active: args.active });
+            }
+        },
+        adherentByMember: {
+            type: new GraphQLList(AdherentType),
+            args: { member: { type: new GraphQLNonNull(GraphQLBoolean) } },
+            resolve(parent, args) {
+                return Adherent.find({ member: args.member });
+            }
+        },
+        adherentByAdmin: {
+            type: new GraphQLList(AdherentType),
+            args: { administrator: { type: new GraphQLNonNull(GraphQLBoolean) } },
+            resolve(parent, args) {
+                return Adherent.find({ administrator: args.administrator });
+            }
+        },
+        adherentBySA: {
+            type: new GraphQLList(AdherentType),
+            args: { superAdministrator: { type: new GraphQLNonNull(GraphQLBoolean) } },
+            resolve(parent, args) {
+                return Adherent.find({ superAdministrator: args.superAdministrator });
+            }
+        },
+        allAdherents: {
+            type: new GraphQLList(AdherentType),
+            resolve(parent, args) {
+                return Adherent.find({});
+            }
+        },
         /**
          * 
          * 
