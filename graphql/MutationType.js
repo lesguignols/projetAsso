@@ -7,6 +7,9 @@ const AdherentType = require('./types/AdherentType');
 const Price = require('./models/price');
 const PriceType = require('./types/PriceType');
 
+const Product = require('./models/product');
+const ProductType = require('./types/ProductType');
+
 const Training = require('./models/training');
 const TrainingType = require('./types/TrainingType');
 
@@ -304,6 +307,69 @@ const MutationType = new GraphQLObjectType({
             },
             resolve(parent, args) {
                 return Price.findByIdAndRemove({ _id: args._id });
+            }
+        },
+        /**
+         * 
+         * 
+         * Mutation product
+         * 
+         * 
+         */
+        addProduct: {
+            type: ProductType,
+            args: {
+                barcode: { type: new GraphQLNonNull(GraphQLString) },
+                name: { type: new GraphQLNonNull(GraphQLString) },
+                selling_price: { type: new GraphQLNonNull(GraphQLFloat) }
+            },
+            resolve(parent, args) {
+                let product = new Product({
+                    _id: mongoose.Types.ObjectId(),
+                    barcode: args.barcode,
+                    name: args.name,
+                    selling_price: args.selling_price
+                })
+                return product.save()
+            }
+        },
+        updateBarcodeProduct: {
+            type: ProductType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                barcode: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                return Product.findByIdAndUpdate(args._id, { "barcode": args.barcode }, { new: true, useFindAndModify: false });
+            }
+        },
+        updateNameProduct: {
+            type: ProductType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                name: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                return Product.findByIdAndUpdate(args._id, { $set: { "name": args.name } }, { new: true, useFindAndModify: false });
+            }
+        },
+        updateSelling_priceProduct: {
+            type: ProductType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) },
+                selling_price: { type: new GraphQLNonNull(GraphQLFloat) }
+            },
+            resolve(parent, args) {
+                return Product.findByIdAndUpdate(args._id, { $set: { "selling_price": args.selling_price } }, { new: true, useFindAndModify: false });
+            }
+        },
+        removeProduct: {
+            type: ProductType,
+            args: {
+                _id: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                return Product.findByIdAndRemove({ _id: args._id });
             }
         },
         /**

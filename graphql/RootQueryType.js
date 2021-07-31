@@ -6,6 +6,9 @@ const AdherentType = require('./types/AdherentType');
 const Price = require('./models/price');
 const PriceType = require('./types/PriceType');
 
+const Product = require('./models/product');
+const ProductType = require('./types/ProductType');
+
 const Training = require('./models/training');
 const TrainingType = require('./types/TrainingType');
 
@@ -15,7 +18,8 @@ const {
     GraphQLList,
     GraphQLString,
     GraphQLBoolean,
-    GraphQLInt
+    GraphQLInt,
+    GraphQLFloat
 } = graphql;
 
 const RootQueryType = new GraphQLObjectType({
@@ -139,6 +143,40 @@ const RootQueryType = new GraphQLObjectType({
             type: new GraphQLList(PriceType),
             resolve(parent, args) {
                 return Price.find({});
+            }
+        },
+        /**
+         * 
+         * 
+         * Query product
+         * 
+         * 
+         */
+        productById: {
+            type: ProductType,
+            args: { _id: { type: new GraphQLNonNull(GraphQLString) } },
+            resolve(parent, args) {
+                return Product.findById(args._id);
+            }
+        },
+        productsByBarcode: {
+            type: new GraphQLList(ProductType),
+            args: { barcode: { type: new GraphQLNonNull(GraphQLString) } },
+            resolve(parent, args) {
+                return Product.find({ barcode: args.barcode });
+            }
+        },
+        productsBySellingPrice: {
+            type: new GraphQLList(ProductType),
+            args: { selling_price: { type: new GraphQLNonNull(GraphQLFloat) } },
+            resolve(parent, args) {
+                return Product.find({ selling_price: args.selling_price });
+            }
+        },
+        allProducts: {
+            type: new GraphQLList(ProductType),
+            resolve(parent, args) {
+                return Product.find({});
             }
         },
         /**
