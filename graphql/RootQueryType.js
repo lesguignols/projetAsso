@@ -24,6 +24,9 @@ const ProviderType = require('./types/ProviderType');
 const Reduction = require('./models/reduction');
 const ReductionType = require('./types/ReductionType');
 
+const Sale = require('./models/sale/sale');
+const SaleType = require('./types/sale/SaleType');
+
 const Settings = require('./models/settings');
 const SettingsType = require('./types/SettingsType');
 
@@ -394,6 +397,68 @@ const RootQueryType = new GraphQLObjectType({
             type: new GraphQLList(ReductionType),
             resolve(parent, args) {
                 return Reduction.find({});
+            }
+        },
+        /**
+         * 
+         * 
+         * Query sale
+         * 
+         * 
+         */
+        saleBySeller: {
+            type: new GraphQLList(SaleType),
+            args: { seller: { type: new GraphQLNonNull(GraphQLString) } },
+            resolve(parent, args) {
+                return Sale.find({ seller: args.seller });
+            }
+        },
+        saleByBuyer: {
+            type: new GraphQLList(SaleType),
+            args: { buyer: { type: new GraphQLNonNull(GraphQLString) } },
+            resolve(parent, args) {
+                return Sale.find({ buyer: args.buyer });
+            }
+        },
+        saleByPeriod: {
+            type: new GraphQLList(SaleType),
+            args: {
+                startDate: { type: new GraphQLNonNull(GraphQLString) },
+                endDate: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                if (args.endDate != "") {
+                    return Sale.find({ date: { "$gte": args.startDate, "$lte": args.endDate } })
+                } else {
+                    return Sale.find({ date: { "$gte": args.startDate, "$lte": args.startDate } })
+                }
+
+            }
+        },
+        saleByPriceGreater: {
+            type: new GraphQLList(SaleType),
+            args: {
+                price_tot: { type: new GraphQLNonNull(GraphQLFloat) }
+            },
+            resolve(parent, args) {
+                return Sale.find({ price_tot: { "$gte": args.price_tot } })
+
+            }
+        },
+        saleByPriceLess: {
+            type: new GraphQLList(SaleType),
+            args: {
+                price_tot: { type: new GraphQLNonNull(GraphQLFloat) }
+            },
+            resolve(parent, args) {
+                return Sale.find({ price_tot: { "$lte": args.price_tot } })
+
+            }
+        },
+        allSale: {
+            type: new GraphQLList(SaleType),
+            resolve(parent, args) {
+                return Sale.find({});
             }
         },
         /**

@@ -26,6 +26,11 @@ const ProductType = require('./types/ProductType');
 const Provider = require('./models/provider');
 const ProviderType = require('./types/ProviderType');
 
+const Sale = require('./models/sale/sale');
+const SaleType = require('./types/sale/SaleType');
+const LineSale = require('./models/sale/linesale');
+const LineSaleInputType = require('./types/sale/linesale/LineSaleInputType');
+
 const Reduction = require('./models/reduction');
 const ReductionType = require('./types/ReductionType');
 
@@ -769,6 +774,49 @@ const MutationType = new GraphQLObjectType({
             },
             resolve(parent, args) {
                 return Reduction.findByIdAndUpdate(args._id, { $pullAll: { "products": args.products } }, { new: true, useFindAndModify: false });
+            }
+        },
+        /**
+         * 
+         * 
+         * Mutation sale
+         * 
+         * 
+         */
+        addSale: {
+            type: SaleType,
+            args: {
+                seller: { type: new GraphQLNonNull(GraphQLString) },
+                buyer: { type: new GraphQLNonNull(GraphQLString) },
+                products: { type: new GraphQLList(LineSaleInputType) },
+                price_tot: { type: new GraphQLNonNull(GraphQLFloat) }
+            },
+            resolve(parent, args) {
+                const productArray = JSON.parse(JSON.stringify(args.products));
+                var i = 0;
+                var linesale_id = [];
+                while (i < productArray.length) {
+                    let linesale = new LineSale({
+                        _id: mongoose.Types.ObjectId(),
+                        product: productArray[i].product,
+                        quantity: productArray[i].quantity,
+                        sum: productArray[i].sum
+                    })
+                    linesale.save();
+                    linesale_id.push(linesale._id);
+                    i++;
+                }
+                let today = new Date();
+                let date = parseInt(today.getMonth() + 1) + "-" + today.getDate() + "-" + today.getFullYear();
+                let sale = new Sale({
+                    _id: mongoose.Types.ObjectId(),
+                    seller: args.seller,
+                    buyer: args.buyer,
+                    date: date,
+                    products: linesale_id,
+                    price_tot: args.price_tot
+                });
+                return sale.save()
             }
         },
         /**
