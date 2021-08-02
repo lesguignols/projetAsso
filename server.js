@@ -9,6 +9,7 @@ const cors = require('cors');
 //const pour les routes
 const adherentRoutes = require('./routes/adherent.routes');
 const billRoutes = require('./routes/bill.routes');
+const cashRoutes = require('./routes/cash.routes');
 const cashFundRoutes = require('./routes/cashfund.routes');
 const inventoryRoutes = require('./routes/inventory/inventory.routes');
 const inventorySupposedRoutes = require('./routes/inventory/inventory.supposed.routes');
@@ -49,6 +50,7 @@ app.get('/jwtid', requireAuth, (req, res) => {
 //routes
 app.use('/api/adherent', adherentRoutes);
 app.use('/api/bill', billRoutes);
+app.use('/api/cash', cashRoutes);
 app.use('/api/cashfund', cashFundRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/inventorysupposed', inventorySupposedRoutes);

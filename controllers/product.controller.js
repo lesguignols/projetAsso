@@ -29,11 +29,19 @@ module.exports.getByBarcode = async(req, res) => {
     })
 }
 
+module.exports.getByType = async(req, res) => {
+    ProductModel.find({ type: req.body.type }, (err, docs) => {
+        if (!err) res.send(docs);
+        else res.status(401).send(err);
+    })
+}
+
 module.exports.addProduct = async(req, res) => {
     const newProduct = new ProductModel({
         barcode: req.body.barcode,
         name: req.body.name,
-        selling_price: req.body.selling_price
+        selling_price: req.body.selling_price,
+        type: req.body.type
     });
 
     try {

@@ -1,4 +1,5 @@
 const cashFundModel = require('../models/cashfund');
+const cashModel = require('../models/cash');
 const ObjectId = require('mongoose').Types.ObjectId;
 
 module.exports.getInfo = async(req, res) => {
@@ -138,6 +139,32 @@ module.exports.addCashFund = async(req, res) => {
         twocents: req.body.twocents,
         onecents: req.body.onecents
     });
+
+    //add cash
+    var mounth = parseInt(today.getMonth() + 1);
+    var day = parseInt(today.getDate() + 1);
+    var year = today.getFullYear();
+    //date du lendemain
+    if ((mounth == 1 || mounth == 3 || mounth == 5 || mounth == 7 || mounth == 8 || mounth == 10) && day > 31) {
+        mounth++;
+        day = 1;
+    } else if ((mounth == 4 || mounth == 6 || mounth == 9 || mounth == 11) && day > 30) {
+        mounth++;
+        day = 1;
+    } else if (mounth == 2 && ((year % 4 == 0 && day > 29) || (year % 4 != 0 && day > 28))) {
+        mounth++;
+        day = 1;
+    } else if (mounth == 12 && day > 31) {
+        mounth = 1;
+        day = 1;
+        year++;
+    }
+    var dateCash = mounth + "-" + day + "-" + year;
+    const newCash = new cashModel({
+        date: dateCash,
+        cash_amount: sum
+    });
+    await newCash.save();
 
     try {
         const cashFund = await newCashFund.save();

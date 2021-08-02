@@ -16,7 +16,7 @@ router.put('/active/:id', offerController.updateActive);
 router.put('/price/:id', offerController.updatePrice);
 router.put('/products/:id', offerController.updateProducts);
 router.put('/daily/:id', offerController.updateDaily);
-router.put('/membersexclusivity/:id', offerController.updateMembersExclusivity);
+router.put('/adherentsexclusivity/:id', offerController.updateAdherentsExclusivity);
 router.put('/start/:id', offerController.updateStart);
 router.put('/end/:id', offerController.updateEnd);
 

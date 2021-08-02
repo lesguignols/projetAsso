@@ -1,4 +1,5 @@
 const SlipCoinsModel = require('../../models/slip/coins');
+const CashModel = require('../../models/cash');
 const ObjectId = require('mongoose').Types.ObjectId;
 
 module.exports.getInfo = async(req, res) => {
@@ -117,6 +118,9 @@ module.exports.addSlipCoins = async(req, res) => {
         twocents: req.body.twocents,
         onecents: req.body.onecents
     });
+
+    const cash = await CashModel.findOne({ date: date });
+    await CashModel.findByIdAndUpdate(cash._id, { $set: { cash_amount: cash.cash_amount - total_amount } });
 
     try {
         const slipCoins = await newSlipCoins.save();

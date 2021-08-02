@@ -75,6 +75,11 @@ module.exports.addBill = async(req, res) => {
         var i = 0;
 
         while (i < productArray.length) {
+            /* //si calculé dans la requête
+            var price_ht = productArray[i].quantity * productArray[i].price_unit;
+            var price_ttc = price_ht + (productArray[i].tva * price_ht / 100);
+            price_tot += price_ttc; */
+            //si calculé par react
             price_tot += productArray[i].price_line;
             await InventorySupposedModel.bill(productArray[i].product, productArray[i].quantity);
             i++;

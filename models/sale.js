@@ -8,8 +8,7 @@ const saleSchema = new Schema({
         require: true
     },
     buyer: {
-        type: Schema.Types.ObjectId,
-        ref: 'adherent'
+        type: String
     },
     date: String,
     products: {

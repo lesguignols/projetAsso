@@ -1,6 +1,7 @@
 const SaleModel = require('../models/sale');
 const OfferModel = require('../models/offer');
 const InventorySupposedModel = require('../models/inventory/inventory.supposed');
+const CashModel = require('../models/cash');
 const ObjectId = require('mongoose').Types.ObjectId;
 
 module.exports.getInfo = async(req, res) => {
@@ -97,9 +98,18 @@ module.exports.addSale = async(req, res) => {
         while (i < offersArray.length) {
             const offer = await OfferModel.findById(offersArray[i]);
             price_tot += offer.price;
+            const productsOfferArray = offer.products;
+            var j = 0;
+            while (j < productsOfferArray.length) {
+                await InventorySupposedModel.sale(productsOfferArray[j].product.toString(), productsOfferArray[j].quantity);
+                j++;
+            }
             i++;
         }
     }
+
+    const newAmount = price_tot;
+    price_tot = Number.parseFloat(price_tot).toFixed(2);
 
     const newSale = new SaleModel({
         seller: req.body.seller,
@@ -109,6 +119,12 @@ module.exports.addSale = async(req, res) => {
         offers: req.body.offers,
         price_tot: price_tot
     });
+
+    const cash = await CashModel.findOne({ date: date });
+    var newCashAmount = cash.cash_amount + newAmount;
+    newCashAmount = Number.parseFloat(newCashAmount).toFixed(2);
+    console.log(newCashAmount)
+    await CashModel.findByIdAndUpdate(cash._id, { $set: { cash_amount: newCashAmount } });
 
     try {
         const sale = await newSale.save();

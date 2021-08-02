@@ -16,7 +16,7 @@ const offerSchema = new Schema({
         }]
     },
     daily: { type: Boolean },
-    members_exclusivity: { type: Boolean },
+    adherents_exclusivity: { type: Boolean },
     startOffer: { type: String },
     endOffer: { type: String }
 }, { collection: 'offer', versionKey: false });

@@ -36,7 +36,7 @@ module.exports.addOffer = async(req, res) => {
         active: req.body.active,
         price: req.body.price,
         products: req.body.products,
-        members_exclusivity: req.body.members_exclusivity,
+        adherents_exclusivity: req.body.adherents_exclusivity,
         daily: req.body.daily,
         startOffer: req.body.startOffer,
         endOffer: req.body.endOffer
@@ -170,14 +170,14 @@ module.exports.updateDaily = async(req, res) => {
     }
 }
 
-module.exports.updateMembersExclusivity = async(req, res) => {
+module.exports.updateAdherentsExclusivity = async(req, res) => {
     if (!ObjectId.isValid(req.params.id)) {
         return res.status(400).send(`"${req.params.id}" n'est pas un ID!`);
     }
     try {
         await OfferModel.findByIdAndUpdate(req.params.id, {
                 $set: {
-                    members_exclusivity: req.body.members_exclusivity,
+                    adherent_exclusivity: req.body.adherents_exclusivity,
                 }
             }, { new: true, upsert: true, setDefaultsOnInsert: true },
             (err, docs) => {
